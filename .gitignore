@@ -15,8 +15,11 @@ main.js
 # Exclude sourcemaps
 *.map
 
-# obsidian
-data.json
-
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
+
+# Exclude testing folder
+/test/
+
+# ...except for the run.sh
+!/test/run.sh
