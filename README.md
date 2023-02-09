@@ -18,6 +18,7 @@ The directory where the source .md files for the Github Pages instance of this r
 
 ### `test/` Directory:
 - see [Unit Testing](#unit-testing)
+- removed from Unit Tests, to prevent circular testing
 
 ## Unit Testing:
 
