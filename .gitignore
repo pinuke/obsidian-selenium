@@ -19,7 +19,7 @@ main.js
 .DS_Store
 
 # Exclude testing folder
-/test/
+test/*
 
 # ...except for the run.sh
-!/test/run.sh
+!test/*.sh
