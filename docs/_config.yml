@@ -1,5 +1,16 @@
-title: Just the Docs Template
-description: A starter template for a Jeykll site using the Just the Docs theme!
+title: Obsidian-Selenium Plugin
+description: A plugin to integrate selenium into obsidian
+
 theme: just-the-docs
+color_scheme: dark
+logo: "/images/plugin.png"
+favicon_ico: "/images/favicon.png"
+button: true
 
 url: https://smartguy1196.github.io/obsidian-selenium
+
+aux_links:
+  "Developer Docs on GitHub":
+    - "//github.com/smartguy1196/obsidian-selenium"
+  "User Docs on GitHub":
+    - "//github.com/smartguy1196/obsidian-selenium/docs"

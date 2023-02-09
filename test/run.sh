@@ -6,5 +6,7 @@ $testfile = [[ $2 ]] && $2 || "README.md"
 cd "$branch-$(date +"%m.%d.%y-%H:%M:%S")"
 cp ../../.obsidian .obsidian
 git clone -b $1 "$(git config --get remote.origin.url)" .
+rm -r test
+# rm -r docs
 cp . .obsidian/plugins
 xdg-open "obsidian://open?path=$(pwd)/$testfile" </dev/null &>/dev/null &
