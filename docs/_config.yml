@@ -10,7 +10,7 @@ button: true
 url: https://smartguy1196.github.io/obsidian-selenium
 
 aux_links:
-  "These Docs on GitHub":
-    - "//github.com/smartguy1196/obsidian-selenium/docs"
-  "Developer Docs on GitHub":
-    - "//github.com/smartguy1196/obsidian-selenium"
+  "View on GitHub":
+    - "//github.com/smartguy1196/obsidian-selenium/docs/index.md"
+  "Developers":
+    - "//github.com/smartguy1196/obsidian-selenium/README.md"
