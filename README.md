@@ -1,7 +1,7 @@
 # `obsidian-selenium` Plugin Developer Docs
 
 ## Plugin User Docs:
-- see [Obsidian-Selenium User Docs](git.smartguy1196.me/obsidian-selenium)
+- see [Obsidian-Selenium User Docs](smartguy1196.github.io/obsidian-selenium)
 
 ## Repository Structure:
 
