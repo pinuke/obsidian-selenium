@@ -39,11 +39,11 @@ This script automatically:
 
 ```bash
 cd test
-./run.sh $brachname $path
+./run.sh $path $brachname
 ```
-
-##### `$branchname`:
-- name of the branch that you would like to test. Default: `"main"`
 
 ##### `$path`:
 - relative path from the vault root to the testfile that you would like to have open when obsidian launches. Default: `"README.md"`
+
+##### `$branchname`:
+- name of the branch that you would like to test. Default: `"main"`
