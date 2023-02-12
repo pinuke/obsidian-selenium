@@ -1,6 +1,7 @@
+CurrentBranch="$(git rev-parse --abbrev-ref HEAD)"
 
-[[ $1 -ne "" ]] && testfile=$1 || testfile="README.md"
-[[ $2 -ne "" ]] && branch=$2 || branch="main"
+[[ $1 -ne "" ]] && testfile="$1" || testfile="README.md"
+[[ $2 -ne "" ]] && branch="$2" || [[ $CurrentBranch -ne "" ]] && branch="$CurrentBranch" || branch="main"
 
 AppData="$(echo ~)/.config/obsidian" # location of Obsidian's AppData on Linux
 
