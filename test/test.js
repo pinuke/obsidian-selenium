@@ -2,11 +2,12 @@
 (async function(){
 
     const path   = await import( "path" )
-    const fs     = await import( "fs-extra" )
-    const open   = await import( "open" )
-    const moment = await import( "moment" )
+    const fs     = require( "fs-extra" ) //has to be a require statement, so that we can extend it
+    const open   = (await import( "open" )).default
+    const moment = (await import( "moment" )).default
     const globby = await import( "globby" )
-    const chalk  = await import( "chalk" )
+    const chalk  = new (await import( "chalk" )).Chalk
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const level  = await import( "level" )
 
     { // setup logging
@@ -25,7 +26,7 @@
             
         }
 
-        const timestamp = () => chalk.dim(`[${moment().format( "HH:mm:ss" )}]`)
+        const timestamp = () => chalk.dim(`[${moment().format( "HH:mm:ss" )}]`) + " "
 
         log.g = ( level, label )=>{
 
@@ -73,12 +74,12 @@
         
         log.warn = ( message, label=" WARN" ) => {
             process.stdout.write( timestamp() )
-            console.log( `${ chalk[ levels[ "info" ] ]( label ) }: ${ chalk.underline( message ) }` )
+            console.log( `${ chalk[ levels[ "warn" ] ]( label ) }: ${ chalk.underline( message ) }` )
         }
         
         log.log = ( message ) => {
-            process.stdout.write( timestamp() + ": " )
-            console.log( `${ chalk.underline( message ) }` )
+            process.stdout.write( timestamp() )
+            console.log( `${ message }` )
         }
 
         log.error = ( message, label="ERROR" ) => {
@@ -323,6 +324,7 @@
     log.log( "test launched!" )
     console.log()
     log.g( "help", "POSTINSTALL:" )
+    console.log()
     console.group( "run this to cd into the test repository:" )
     console.log( `cd "${ENV.OUTPUT}"`)
     console.groupEnd()
