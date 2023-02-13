@@ -8,7 +8,7 @@
     const globby = await import( "globby" )
     const chalk  = new (await import( "chalk" )).Chalk
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const level  = await import( "level" )
+    const Level  = (await import( "level" )).Level
 
     { // setup logging
 
@@ -169,7 +169,7 @@
     
         }
 
-        log.g.end()
+        log.g.end() // end of SETTING UP GLOBALS
 
     }
 
@@ -210,13 +210,25 @@
     // - this is also the name of the unit test folder
     
     ENV.ID = `${ ENV.BRANCH.SELECTED }-${ ENV.TIMESTAMP.format('mm.dd.yyyy-HH.MM.SS') }`
+
+    log.warn( "loading Local/Session Storage leveldb's...", "LEVELDB:" )
+    // load leveldbs for obsidian
+    ENV.LEVELDB = {
+        "LOCAL" : new Level( `${ ENV.APPDATA.OBSIDIAN }/Local Storage/leveldb` ),
+        "SESSION" : new Level( `${ ENV.APPDATA.OBSIDIAN }/Session Storage/leveldb` ) //this is currently unused by Obsidian. It is empty.
+    }
+
+    await ENV.LEVELDB.LOCAL.open()
+    await ENV.LEVELDB.SESSION.open()
+
+    log.log( "leveldbs loaded" )
     
     log.debug( ENV, "ENVIRONMENT CONSTANTS:" )
 
-    log.g.end()
-    log.g.end()
+    log.g.end() // end of SETTING UP ENVIRONMENT CONSTANTS
+    log.g.end() // end of PERFORMING INITIALIZATION
 
-    log.g( "info", "BUILD TEST:" )
+    log.g( "info", "BUILDING THE TEST:" )
 
     // ensure test directory and cd into it
     fs.ensureDirSync( `${ ENV.GIT.ROOT }/test/${ ENV.ID }` );
@@ -254,7 +266,7 @@
 
     })
 
-    log.g.end()
+    log.g.end() // end of PREPARING PLUGIN
     log.g( "warn", "BUILDING PLUGIN:" )
 
     // build the plugin
@@ -266,8 +278,8 @@
     global.shell( 'node esbuild.config.mjs test' )
     fs.cd( '../../..' )    
 
-    log.g.end()
-    log.g.end()
+    log.g.end() // end of BUILDING PLUGIN
+    log.g.end() // end of BUILDING THE TEST
 
     log.g( "info", "SETTING UP VAULT:" )
 
@@ -317,19 +329,54 @@
             "zoom" : 0
         }))
     
-    log.g.end()
+    log.g.end() // end of SETTING UP VAULT
+    log.g( "info", "ENABLING TRUST AUTHOR FLAG:" )
+
+    let keyprefix = "_app://obsidian.md\x00\x01"
+    let keys = {
+        "enable-plugin" : `enable-plugin-${ ENV.ID }`,
+        "file-explorer-unfold" : `${ ENV.ID }-file-explorer-unfold`
+    }
+    let valueprefix = "\x01"
+    let values = {
+        "enable-plugin" : "true",
+        "file-explorer-unfold" : '["/"]'
+    }
+
+    log.log( "pushing keys to Local Storage..." )
+    Object.keys( keys ).forEach( key => {
+
+        let value = `${ valueprefix }${ values[ key ] }`
+        key = `${ keyprefix }${ keys[ key ] }`
+
+        ENV.LEVELDB.LOCAL.put( key, value )
+
+    })
+
+    log.warn( "closing leveldbs...", "CLOSING MUST BE DONE OR YOU'LL REGRET IT" )
+    // leveldbs must be closed, because only 1 process can control a leveldb at a time
+    // - if the leveldb gets locked, run the following (this assumes you get the "Resource Unavailable" Lock error)
+    // ```
+    // cd "path/to/appdata/obsidian/Local Storage/leveldb"
+    // lsof LOCK
+    // kill -9 [PID from "lsof"]
+    // ```
+    ENV.LEVELDB.LOCAL.close()
+    ENV.LEVELDB.SESSION.close()
+
+    log.g.end() // end of ENABLING TRUST AUTHOR FLAG
 
     log.warn( "launching...", "GETTING READY!" )
     open( `obsidian://open?path=${ process.cwd() }/${ ENV.TESTFILE.SELECTED }` )
     log.log( "test launched!" )
     console.log()
-    log.g( "help", "POSTINSTALL:" )
+    log.g( "help", "POSTINSTALL GUIDE:" )
     console.log()
     console.group( "run this to cd into the test repository:" )
     console.log( `cd "${ENV.OUTPUT}"`)
     console.groupEnd()
     console.group( "run this to cd into the test plugin folder" )
     console.log( `cd "${ENV.OUTPUT}/.obsidian/plugins/${ ENV.GIT.NAME }`)
-    log.g.end()
+    log.g.end() // end of POSTINSTALL GUIDE
 
 })()

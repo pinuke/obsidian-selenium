@@ -46,3 +46,30 @@ node ./test/test.js $path $brachname
 
 ##### `$branchname`:
 - name of the branch that you would like to test. Default: `"main"`
+
+#### Logging:
+
+This script uses custom logging and uses a lot of it, so that developers can get a better idea as to why their test build failed.
+
+##### Yellow Labels:
+
+Sections of the build script that are likely to break are printed in yellow, and the messages are underlined.
+
+##### Magenta Labels:
+
+These are help/manual dialogs
+
+##### Blue/Cyan Labels:
+
+These are used for debugging and tracing respectively
+
+##### Red Labels:
+
+These are used for errors. There are 2 types: "Error" and "Fatal."
+- Fatal errors will kill the process to prevent further damage to the build
+
+#### Developer Notes:
+
+One particular yellow label that is important is the label for closing the leveldbs. Leveldbs use lockfiles and can only be opened by one process at a time. This means that all applications/processes using leveldb must not be running, and must have closed the leveldb *before running the test script*
+
+In the `test/test.js` file, just after that yellow label is a comment on how to start troubleshooting the lock. It isn't a one-size-fits-all solution, but it should get you going in the right direction.
