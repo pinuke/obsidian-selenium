@@ -34,3 +34,4 @@ test/*
 
 # ...except for the run.sh
 !test/*.sh
+!test/*.js

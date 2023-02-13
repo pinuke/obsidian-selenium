@@ -6,8 +6,9 @@ CurrentBranch="$(git rev-parse --abbrev-ref HEAD)"
 AppData="$(echo ~)/.config/obsidian" # location of Obsidian's AppData on Linux
 
 # identify test by branch name and timestamp
+# - this is also the name of the unit test folder
 
-ID="$branch-$(date +"%m.%d.%y-%H:%M:%S")"
+ID="$branch-$(date +"%m.%d.%y-%H.%M.%S")"
 
 # create and cd into test directory
 
@@ -19,7 +20,7 @@ cd "$ID"
 # - remove the test directory (prevents circular testing)
 # - optionally remove the docs directory
 
-git clone "$(git config --get remote.origin.url)" .
+git clone "$(git rev-parse --show-toplevel)" .
 git switch $branch 2>/dev/null || git switch -c $branch;
 rm -r test
 # rm -r docs
