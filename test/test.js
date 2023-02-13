@@ -3,6 +3,7 @@ const path = require( "path" )
 const fs = require( "fs-extra" ) // note this script adds the fs.cd() method!
 const open = require( "open" )
 const moment = require( "moment" )
+const globby = require( "globby" )
 
 { // globals factory
 
@@ -118,7 +119,11 @@ fs.removeSync( 'test' )
 // setup the plugin via copy (copy the modified root directory to the core of the plugin)
 
 fs.ensureDirSync(      `.obsidian/plugins/${ ENV.GIT.NAME }` )
-fs.copy( '!.obsidian', `.obsidian/plugins/${ ENV.GIT.NAME }` )
+globby.sync( "./!(.obsidian)" ).forEach( file => {
+
+    fs.copy( file, `.obsidian/plugins/${ ENV.GIT.NAME }/${ file }` )
+
+})
 
 // the rest of the code (except the last line) adds the new vault to obsidian's internal vault tracker
 
