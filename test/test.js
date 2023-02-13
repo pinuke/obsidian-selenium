@@ -128,7 +128,8 @@ fs.cd(            `${ ENV.GIT.ROOT }/test/${ ENV.ID }` );
 // - remove the test directory (prevents circular testing)
 // - optionally remove the docs directory
 
-console.log( `cloning ${ ENV.GIT.ROOT } to ${ process.cwd() } ...`)
+ENV.OUTPUT = process.cwd()
+console.log( `cloning ${ ENV.GIT.ROOT } to ${ ENV.OUTPUT } ...`)
 
 global.shell( `git clone "${ ENV.GIT.ROOT }" .` )
 global.shell( `git switch "${ ENV.BRANCH.SELECTED }" 2>/dev/null || global switch -c "${ ENV.BRANCH.SELECTED }"` )
@@ -217,3 +218,9 @@ console.groupEnd() // end of SETTING UP VAULT
 console.log( "launching..." )
 open( `obsidian://open?path=${ process.cwd() }/${ ENV.TESTFILE.SELECTED }` )
 console.log( "test launched!" )
+console.log()
+console.group( "run this to cd into the test repository:" )
+console.log( `cd "${ENV.OUTPUT}"`)
+console.groupEnd()
+console.group( "run this to cd into the test plugin folder" )
+console.log( `cd "${ENV.OUTPUT}/.obsidian/plugins/${ ENV.GIT.NAME }`)
