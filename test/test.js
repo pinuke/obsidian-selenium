@@ -5,8 +5,13 @@ const open = require( "open" )
 const moment = require( "moment" )
 const globby = require( "globby" )
 
+console.group( "SETTING UP ENVIRONMENT:" )
+
 { // globals factory
 
+    console.group( "SETTING UP GLOBALS:" )
+    
+    console.log( "Adding .escape() method to RegExp..." )
     { // [[return:string] function] RegExp.escape(): escapes all special regex characters in an input string
 
         RegExp.escape = pattern => {
@@ -15,6 +20,7 @@ const globby = require( "globby" )
 
     }
 
+    console.log( "Parsing Node.js's argv to something that makes sense..." )
     { // [array] global.args: parsed arguments for script
 
         const args = process.argv.slice()
@@ -36,6 +42,7 @@ const globby = require( "globby" )
 
     }
 
+    console.log( "Wrapping execSync() into global.shell()..." )
     { // [function] global.shell(): wrapper function for execSync
 
         const execSync = require( "child_process" ).execSync
@@ -46,6 +53,7 @@ const globby = require( "globby" )
 
     }
 
+    console.log( "Wrapping write/readFileSync() into global.save/loadfile() respectively..." )
     { // [function] global.savefile() and global.loadfile(): wrapper functions for writeFileSync and readFileSync
 
         global.loadfile = path => {
@@ -58,13 +66,18 @@ const globby = require( "globby" )
 
     }
 
+    console.log( "Creating alias fs.cd() (fs-extra) for process.chdir()..." )
     { // [function] fs.cd(): wrapper function for process.chdir()
 
         fs.cd = process.chdir
 
     }
 
+    console.groupEnd() // end of SETTING UP GLOBALS
+
 }
+
+console.group( "SETTING UP 'ENV' OBJECT:" )
 
 const ENV = {
     "BRANCH" : {
@@ -100,8 +113,13 @@ ENV.GIT.NAME = path.basename( ENV.GIT.ROOT ) // this is the plugin's name
 
 ENV.ID = `${ ENV.BRANCH.SELECTED }-${ ENV.TIMESTAMP.format('mm.dd.yyyy-HH.MM.SS') }`
 
-// ensure test directory and cd into it
+console.log( ENV )
+console.groupEnd() // end of SETTING UP 'ENV' OBJECT
+console.groupEnd() // end of SETTING UP ENVIRONMENT
 
+console.group( "BUILD TEST:" )
+
+// ensure test directory and cd into it
 fs.ensureDirSync( `${ ENV.GIT.ROOT }/test/${ ENV.ID }` );
 fs.cd(            `${ ENV.GIT.ROOT }/test/${ ENV.ID }` );
 
@@ -110,15 +128,19 @@ fs.cd(            `${ ENV.GIT.ROOT }/test/${ ENV.ID }` );
 // - remove the test directory (prevents circular testing)
 // - optionally remove the docs directory
 
-global.shell( `git clone ${ ENV.GIT.ROOT } .` )
-global.shell( `git switch ${ ENV.BRANCH.SELECTED } 2>/dev/null || global switch -c ${ ENV.BRANCH.SELECTED }` )
-global.shell( 'npm install' )
-global.shell( 'npm run dev' )
+console.log( `cloning ${ ENV.GIT.ROOT } to ${ process.cwd() } ...`)
+
+global.shell( `git clone "${ ENV.GIT.ROOT }" .` )
+global.shell( `git switch "${ ENV.BRANCH.SELECTED }" 2>/dev/null || global switch -c "${ ENV.BRANCH.SELECTED }"` )
+
+console.log( "cleaning up clone..." )
 
 fs.removeSync( 'test' )
 // fs.removeSync( 'docs' )
 
 // setup the plugin via copy (copy the modified root directory to the core of the plugin)
+
+console.log( "preparing plugin..." )
 
 fs.ensureDirSync( `.obsidian/plugins/${ ENV.GIT.NAME }` )
 
@@ -126,10 +148,24 @@ fs.ensureDirSync( `.obsidian/plugins/${ ENV.GIT.NAME }` )
 
 globby.sync( "./!(.obsidian)" ).forEach( file => {
 
-    fs.copy( file, `.obsidian/plugins/${ ENV.GIT.NAME }/${ file }` )
+    fs.copySync( file, `.obsidian/plugins/${ ENV.GIT.NAME }/${ file }` )
 
 })
 
+console.log( "building plugin..." )
+// build the plugin
+
+fs.cd( `.obsidian/plugins/${ ENV.GIT.NAME }` )
+console.log( "installing dependencies..." )
+global.shell( 'npm install --no-bin-links' )
+console.log( "building..." )
+global.shell( 'node esbuild.config.mjs test' )
+fs.cd( '../../..' )
+
+console.groupEnd() // end of BUILD TEST
+console.group( "SETTING UP VAULT:" )
+
+console.log( "preparing vault tracker..." )
 // the rest of the code (except the last line) adds the new vault to obsidian's internal vault tracker
 
 // write '{}' to obsidian's vault tracker if it doesn't exist or if it is empty (== '')
@@ -137,6 +173,7 @@ try{ global.savefile( `${ ENV.APPDATA.OBSIDIAN }/obsidian.json`, '{}', 'wx' ) } 
 if( global.loadfile(  `${ ENV.APPDATA.OBSIDIAN }/obsidian.json` ) == '' )
     global.savefile(  `${ ENV.APPDATA.OBSIDIAN }/obsidian.json`, '{}' )
 
+console.log( "updating vault tracker..." )
 // get vaults list (hash table) from obsidian's vault tracker
 
 let { vaults } = require( `${ ENV.APPDATA.OBSIDIAN }/obsidian.json` )
@@ -158,6 +195,7 @@ global.savefile(
     `${ ENV.APPDATA.OBSIDIAN }/obsidian.json`,
     JSON.stringify({ "vaults": vaults }))
 
+console.log( "adding vault cache..." )
 // create a vault cache
 // - this is the second thing that the obsidian URI looks for:
 
@@ -173,6 +211,9 @@ global.savefile(
         "zoom" : 0
     }))
 
+console.groupEnd() // end of SETTING UP VAULT
 // Open the new vault using the URI
 
+console.log( "launching..." )
 open( `obsidian://open?path=${ process.cwd() }/${ ENV.TESTFILE.SELECTED }` )
+console.log( "test launched!" )
