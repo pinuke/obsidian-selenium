@@ -9,7 +9,7 @@
 
 This plugin also happens to be its own vault. This is for testing and convenience for the developer. In the root of the repository, this folder is (for the most part) "vanilla" with no plugins loaded.
 
-However, the vaults (or copies of this repo) loaded into the `test/` directory using the `test/run.sh` script will have this plugin loaded automatically by the script.
+However, the vaults (or copies of this repo) loaded into the `test/` directory using the `test/test.js` script will have this plugin loaded automatically by the script.
 - see [Unit Testing](#unit-testing)
 
 ### `docs/` Directory:
@@ -26,9 +26,9 @@ If you would like to see how I wrote the Plugin User Docs, see the [Just the Doc
 
 The root of this git repository is not only setup as a plugin, but conveniently setup as a vault for unit testing!
 
-Included with this repository is a `test/run.sh` bash script for automatically setting up the repo-vault and opening it in obsidian with it loaded as a plugin!
+Included with this repository is a `test/test.js` node.js script for automatically setting up the repo-vault and opening it in obsidian with it loaded as a plugin!
 
-### `run.sh` Usage:
+### `test.js` Usage:
 
 This script automatically:
 - clones this repository into the test directory under the name `$branchname-$timestamp`. 
@@ -38,8 +38,7 @@ This script automatically:
 #### Syntax:
 
 ```bash
-cd test
-./run.sh $path $brachname
+node ./test/test.js $path $brachname
 ```
 
 ##### `$path`:
@@ -47,3 +46,30 @@ cd test
 
 ##### `$branchname`:
 - name of the branch that you would like to test. Default: `"main"`
+
+#### Logging:
+
+This script uses custom logging and uses a lot of it, so that developers can get a better idea as to why their test build failed.
+
+##### Yellow Labels:
+
+Sections of the build script that are likely to break are printed in yellow, and the messages are underlined.
+
+##### Magenta Labels:
+
+These are help/manual dialogs
+
+##### Blue/Cyan Labels:
+
+These are used for debugging and tracing respectively
+
+##### Red Labels:
+
+These are used for errors. There are 2 types: "Error" and "Fatal."
+- Fatal errors will kill the process to prevent further damage to the build
+
+#### Developer Notes:
+
+One particular yellow label that is important is the label for closing the leveldbs. Leveldbs use lockfiles and can only be opened by one process at a time. This means that all applications/processes using leveldb must not be running, and must have closed the leveldb *before running the test script*
+
+In the `test/test.js` file, just after that yellow label is a comment on how to start troubleshooting the lock. It isn't a one-size-fits-all solution, but it should get you going in the right direction.
