@@ -48,7 +48,7 @@ console.group( "SETTING UP ENVIRONMENT:" )
         const execSync = require( "child_process" ).execSync
     
         global.shell = command =>{
-            return execSync( command ).toString().trim()
+            return execSync( command, { "timeout" : 30000, "stdio" : 'pipe'} ).toString().trim()
         }
 
     }
