@@ -118,7 +118,10 @@ fs.removeSync( 'test' )
 
 // setup the plugin via copy (copy the modified root directory to the core of the plugin)
 
-fs.ensureDirSync(      `.obsidian/plugins/${ ENV.GIT.NAME }` )
+fs.ensureDirSync( `.obsidian/plugins/${ ENV.GIT.NAME }` )
+
+// copy the entire root directory except the test, docs (optional - see above), and .obsidian folders to the plugins directory
+
 globby.sync( "./!(.obsidian)" ).forEach( file => {
 
     fs.copy( file, `.obsidian/plugins/${ ENV.GIT.NAME }/${ file }` )
