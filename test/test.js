@@ -175,8 +175,6 @@
 
     log.g( "info", "SETTING UP ENVIRONMENT CONSTANTS:" )
 
-
-
     const ENV = {
         "BRANCH" : {
             "DEFAULT"  : "main",
@@ -209,7 +207,7 @@
     // identify test by branch name and timestamp
     // - this is also the name of the unit test folder
     
-    ENV.ID = `${ ENV.BRANCH.SELECTED }-${ ENV.TIMESTAMP.format('mm.dd.yyyy-HH.MM.SS') }`
+    ENV.ID = `${ ENV.BRANCH.SELECTED }-${ ENV.TIMESTAMP.format('MM.DD.YYYY-HH.mm.ss') }`
 
     log.warn( "loading Local/Session Storage leveldb's...", "LEVELDB:" )
     // load leveldbs for obsidian
@@ -217,6 +215,8 @@
         "LOCAL" : new Level( `${ ENV.APPDATA.OBSIDIAN }/Local Storage/leveldb` ),
         "SESSION" : new Level( `${ ENV.APPDATA.OBSIDIAN }/Session Storage/leveldb` ) //this is currently unused by Obsidian. It is empty.
     }
+    await ENV.LEVELDB.LOCAL.close()
+    await ENV.LEVELDB.SESSION.close()
 
     await ENV.LEVELDB.LOCAL.open()
     await ENV.LEVELDB.SESSION.open()
@@ -246,6 +246,8 @@
 
     global.shell( `git clone "${ ENV.GIT.ROOT }" .` )
     global.shell( `git switch "${ ENV.BRANCH.SELECTED }" 2>/dev/null || global switch -c "${ ENV.BRANCH.SELECTED }"` )
+
+    ENV.MANIFEST = require( `${ ENV.OUTPUT }/manifest.json` )
 
     log.log( "cleaning up clone..." )
 
@@ -284,7 +286,6 @@
     log.g( "info", "SETTING UP VAULT:" )
 
     log.log( "preparing vault tracker..." )
-    // the rest of the code (except the last line) adds the new vault to obsidian's internal vault tracker
     
     // write '{}' to obsidian's vault tracker if it doesn't exist or if it is empty (== '')
     try{ global.savefile( `${ ENV.APPDATA.OBSIDIAN }/obsidian.json`, '{}', 'wx' ) } catch { /* Errors are expected */ }
@@ -330,6 +331,8 @@
         }))
     
     log.g.end() // end of SETTING UP VAULT
+
+    log.g( "info", "AUTO-ENABLING PLUGIN:" )
     log.g( "info", "ENABLING TRUST AUTHOR FLAG:" )
 
     let keyprefix = "_app://obsidian.md\x00\x01"
@@ -361,10 +364,37 @@
     // lsof LOCK
     // kill -9 [PID from "lsof"]
     // ```
-    ENV.LEVELDB.LOCAL.close()
-    ENV.LEVELDB.SESSION.close()
+    await ENV.LEVELDB.LOCAL.close()
+    await ENV.LEVELDB.SESSION.close()
 
     log.g.end() // end of ENABLING TRUST AUTHOR FLAG
+    log.g( "info", "ENABLING PLUGIN:" )
+
+    log.log( "preparing community plugins tracker..." )
+    
+    // write '[]' to obsidian's community plugins tracker if it doesn't exist or if it is empty (== '')
+    try{ global.savefile( ".obsidian/community-plugins.json", '[]', 'wx' ) } catch { /* Errors are expected */ }
+    if( global.loadfile(  ".obsidian/community-plugins.json" ) == '' )
+        global.savefile(  ".obsidian/community-plugins.json", '[]' )
+
+    log.log( "updating community plugins tracker..." )
+    // get plugins list (array) from obsidian's community plugins tracker
+    
+    let { plugins } = require( `${ ENV.OUTPUT }/.obsidian/community-plugins.json` )
+
+    // if the plugins list is empty/null, create it
+    
+    if( !plugins )
+        plugins = []
+
+    plugins.push( `${ ENV.MANIFEST.id }` )
+    
+    global.savefile(
+        ".obsidian/community-plugins.json",
+        JSON.stringify( plugins ))
+
+    log.g.end() // end of ENABLING PLUGIN
+    log.g.end() // end of AUTO-ENABLING PLUGIN
 
     log.warn( "launching...", "GETTING READY!" )
     open( `obsidian://open?path=${ process.cwd() }/${ ENV.TESTFILE.SELECTED }` )
