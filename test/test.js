@@ -112,6 +112,8 @@ fs.cd(            `${ ENV.GIT.ROOT }/test/${ ENV.ID }` );
 
 global.shell( `git clone ${ ENV.GIT.ROOT } .` )
 global.shell( `git switch ${ ENV.BRANCH.SELECTED } 2>/dev/null || global switch -c ${ ENV.BRANCH.SELECTED }` )
+global.shell( 'npm install' )
+global.shell( 'npm run dev' )
 
 fs.removeSync( 'test' )
 // fs.removeSync( 'docs' )

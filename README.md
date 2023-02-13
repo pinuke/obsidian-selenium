@@ -9,7 +9,7 @@
 
 This plugin also happens to be its own vault. This is for testing and convenience for the developer. In the root of the repository, this folder is (for the most part) "vanilla" with no plugins loaded.
 
-However, the vaults (or copies of this repo) loaded into the `test/` directory using the `test/run.sh` script will have this plugin loaded automatically by the script.
+However, the vaults (or copies of this repo) loaded into the `test/` directory using the `test/test.js` script will have this plugin loaded automatically by the script.
 - see [Unit Testing](#unit-testing)
 
 ### `docs/` Directory:
@@ -26,9 +26,9 @@ If you would like to see how I wrote the Plugin User Docs, see the [Just the Doc
 
 The root of this git repository is not only setup as a plugin, but conveniently setup as a vault for unit testing!
 
-Included with this repository is a `test/run.sh` bash script for automatically setting up the repo-vault and opening it in obsidian with it loaded as a plugin!
+Included with this repository is a `test/test.js` node.js script for automatically setting up the repo-vault and opening it in obsidian with it loaded as a plugin!
 
-### `run.sh` Usage:
+### `test.js` Usage:
 
 This script automatically:
 - clones this repository into the test directory under the name `$branchname-$timestamp`. 
@@ -38,8 +38,7 @@ This script automatically:
 #### Syntax:
 
 ```bash
-cd test
-./run.sh $path $brachname
+node ./test/test.js $path $brachname
 ```
 
 ##### `$path`:
